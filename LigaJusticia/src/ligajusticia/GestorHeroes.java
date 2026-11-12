@@ -1,46 +1,58 @@
 package ligajusticia;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.LinkedList;
 
 /**
  * Clase que administra la lista de héroes.
  *
- * Estructura de datos elegida: LinkedHashMap<String, Heroe>
- *  - La clave es el ID del héroe, así buscar y modificar por ID es directo (rápido).
- *  - No permite IDs repetidos.
+ * Estructura de datos elegida: LinkedList<Heroe> (lista enlazada)
+ *  - Crece y se reduce según se necesite: no hay que definir un tamaño máximo.
+ *  - Agregar un héroe al final es inmediato (no se mueven los demás elementos).
  *  - Conserva el orden en que se registraron los héroes.
+ *  - La búsqueda por ID es secuencial: se recorre la lista nodo por nodo.
  */
 public class GestorHeroes {
 
-    private LinkedHashMap<String, Heroe> heroes = new LinkedHashMap<>();
+    private LinkedList<Heroe> heroes = new LinkedList<>();
 
-    // Registra un héroe. Devuelve false si el ID ya existe.
+    // Registra un héroe al final de la lista. Devuelve false si el ID ya existe.
     public boolean registrar(Heroe heroe) {
-        if (heroes.containsKey(heroe.getId())) {
-            return false;
+        if (buscar(heroe.getId()) != null) {
+            return false; // ID repetido
         }
-        heroes.put(heroe.getId(), heroe);
+        heroes.addLast(heroe);
         return true;
     }
 
-    // Busca un héroe por su ID. Devuelve null si no existe.
+    // Búsqueda secuencial: recorre la lista hasta encontrar el ID.
+    // Devuelve el héroe encontrado, o null si no existe.
     public Heroe buscar(String id) {
-        return heroes.get(id);
+        for (Heroe h : heroes) {
+            if (h.getId().equalsIgnoreCase(id)) {
+                return h;
+            }
+        }
+        return null;
     }
 
-    // Modifica los datos del héroe con ese ID. Devuelve false si no existe.
-    public boolean modificar(Heroe heroe) {
-        if (!heroes.containsKey(heroe.getId())) {
+    // Modifica los datos del héroe que tiene ese ID. Devuelve false si no existe.
+    // El héroe mantiene su misma posición en la lista.
+    public boolean modificar(Heroe datosNuevos) {
+        Heroe existente = buscar(datosNuevos.getId());
+        if (existente == null) {
             return false;
         }
-        heroes.put(heroe.getId(), heroe);
+        existente.setNombre(datosNuevos.getNombre());
+        existente.setSuperpoder(datosNuevos.getSuperpoder());
+        existente.setMision(datosNuevos.getMision());
+        existente.setNivelDificultad(datosNuevos.getNivelDificultad());
+        existente.setPagoMensual(datosNuevos.getPagoMensual());
         return true;
     }
 
-    // Devuelve todos los héroes registrados
-    public ArrayList<Heroe> listar() {
-        return new ArrayList<>(heroes.values());
+    // Devuelve todos los héroes registrados, en orden de registro
+    public LinkedList<Heroe> listar() {
+        return heroes;
     }
 
     public int cantidad() {
